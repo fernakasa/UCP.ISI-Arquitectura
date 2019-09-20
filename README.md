@@ -1,2 +1,5 @@
 # UCP.ISI-Arquitectura
- Repositorio de todas las actividades y trabajos practicos de la asignatura Arquitectura de la Carrera: Ingenieria en Sistemas de Informacion de la Universidad de la Cuenca del Plata
+Universidad de la Cuenca del Plata.
+Ingenieria en Sistemas de Informacion.
+Arquitectura de Computadoras.
+Repositorio para todas las actividades y trabajos practicos.
