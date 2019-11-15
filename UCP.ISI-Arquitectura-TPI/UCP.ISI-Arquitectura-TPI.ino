@@ -35,52 +35,82 @@
 ///
 /// ******************************************************************************************************** ///
 #define FRECUENCIA_RELOJ_CPU 16000000
+#include "GFButton.h"
 
 /// Fase de inicializacion. 
-
+int estado = HIGH;
 int contador = 5;
+bool modo = false;
+GFButton buttonOn(13);
 // lo de arriba borrar
 uint16_t delay_count;      // la definicion del tipo de dato uint8_t es similar a usar  unsigned char
 void asm_delay(uint8_t ms);   // prototipo de la función
 
 void setup(){
   Serial.begin(9600);
-  // ACA ESTA LA INTERRUPCION Q AL MOMENTO EN Q EL SENSOR ENVIA UNA SENIAL EJECUTA LA FUNCION puntoMayor
-  // attachInterrupt(digitalPinToInterrupt(SensorPin01), PuntoMayor, CHANGE);   
-  for (int m=0; m<=7; m++) {
-    pinMode(2 + m , OUTPUT);
-  }
-  
-  asm volatile(
-  "SBI %0, %1 \n\t"    //pinMode(13, OUTPUT);
-  :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB5)
-  );
-  
   delay_count = FRECUENCIA_RELOJ_CPU / 400;
+  asmPinUp();
+  asmLed(12,1);
 }
 
 /// Bucle de ejecucion principal que solo hace titilar al ledRed02PIN = 8.
 void loop(){
-  asmLedHigh();
-  asmLedPrint(contador); //render de los numeros
-  asmDelay(20);
-  asmLedLow();
-  asmLedAllLow;
-  asmDelay(20);  
-  // if (contador == 9){
-  //   contador = 0;
-  //   for (int i = 0; i < 3; i++){
-  //     asmLedAllHigh();
-  //     asmDelay(20);
-  //     asmLedAllLow();
-  //     asmDelay(20); 
-  //   }
-  // }else{
-  //   contador++;
-  // }
+  if (buttonOn.wasPressed()) {
+    changeMode();
+  }
+
+  if (!modo){
+    modoA();
+  }else{
+    asmLed(12,0);
+    modoB();
+  }
 }
 
-/// FUNCION 
+void modoA(){
+  asmLedPrint(contador); //render de los numeros
+  asmBinCount(contador); 
+  asmDelay(50);
+  asmLedAllLow;
+  asmDelay(50);
+  if (contador == 9){
+    contador = 0;
+    for (int i = 0; i < 3; i++){
+      asmLedAllHigh();
+      asmDelay(20);
+      asmLedAllLow();
+      asmDelay(20); 
+    }
+  }else{
+    contador++;
+  }
+}
+
+void modoB(){
+  asmLedPrint(contador); //render de los numeros
+  asmBinCount(contador); 
+  asmDelay(50);
+  asmLedAllLow;
+  asmDelay(50);
+  if (contador == 9){
+    contador = 0;
+    for (int i = 0; i < 3; i++){
+      asmLedAllHigh();
+      asmDelay(20);
+      asmLedAllLow();
+      asmDelay(20); 
+    }
+  }else{
+    contador++;
+  }
+}
+
+void changeMode(){
+  modo = true;
+}
+
+/// ************************************************************************************************************************************************************************* ///
+/// FUNCION DEMOSTRATIVAS (NO SE USAN)
 void asmLedHigh(){
   /// SBI -> Comando que pone en High el puerto
   /// %0, %1 -> Son dos variables "Formateadas" que referencian a las entradas en la seccion de InputOperands.
@@ -103,6 +133,8 @@ void asmLedLow(){
   );
 }
 
+/// ************************************************************************************************************************************************************************* ///
+///  Funciones
 void asmDelay(uint8_t ms){
   uint16_t cnt;      // variable cnt,tipo de datos de 2 bytes sin signo
   asm volatile(
@@ -171,6 +203,48 @@ void asmLed(int pin, int state){
       asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB0));
     }      
   break;
+  case 7: // Pin 9
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB1));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB1));
+    }      
+  break;
+  case 8: // Pin 10
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB2));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB2));
+    }      
+  break;
+  case 9: // Pin 11
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB3));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB3));
+    }      
+  break;
+  case 10: // Pin 12
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB4));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB4));
+    }      
+  break;
+  case 11: // Pin 13
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB5));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB5));
+    }      
+  break;
+  case 12: // Pin A0
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTC)), "I" (PORTC0));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTC)), "I" (PORTC0));
+    }      
+  break;
   }
 }
 
@@ -237,6 +311,32 @@ void asmLedPrint(int count){
     break;
   }
 }
+
+void asmPinUp(){
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRD)), "I" (DDD2));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRD)), "I" (DDD3));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRD)), "I" (DDD4));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRD)), "I" (DDD5));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRD)), "I" (DDD6));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRD)), "I" (DDD7));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB0));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB1));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB2));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB3));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB4));
+      //asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB5));
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(DDRC)), "I" (DDC0));
+      pinMode(13, INPUT);
+}
+
+
+void asmBinCount(int count){
+  for (int i=0; i<=3; i++) {
+    asmLed(i + 7, bitRead(count, i));
+  }
+}
+
+
 
 // Ejemplos	
 // byte x = 33; // crea e inicializa x con el valor 33 (00100001 en binario)
