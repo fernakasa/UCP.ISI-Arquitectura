@@ -37,17 +37,9 @@
 #define FRECUENCIA_RELOJ_CPU 16000000
 
 /// Fase de inicializacion. 
-byte num0 = 0x3F;  //Hexadecimal format based upon the A-G, 0-9 Chart in excel and the wiring      // of the segment (refer to the on/off table image below).
-byte num1 = 0x6;
-byte num2 = 0x5B;
-byte num3 = 0x4F;
-byte num4 = 0x66;
-byte num5 = 0x6D;
-byte num6 = 0x7C;
-byte num7 = 0x7;
-byte num8 = 0x7F;
-byte num9 = 0x6F;
 
+int contador = 5;
+// lo de arriba borrar
 uint16_t delay_count;      // la definicion del tipo de dato uint8_t es similar a usar  unsigned char
 void asm_delay(uint8_t ms);   // prototipo de la función
 
@@ -63,26 +55,33 @@ void setup(){
   "SBI %0, %1 \n\t"    //pinMode(13, OUTPUT);
   :: "I" (_SFR_IO_ADDR(DDRB)), "I" (DDB5)
   );
-  delay_count= FRECUENCIA_RELOJ_CPU;
+  
+  delay_count = FRECUENCIA_RELOJ_CPU / 400;
 }
-
 
 /// Bucle de ejecucion principal que solo hace titilar al ledRed02PIN = 8.
 void loop(){
-  prender();
-  for (int m=0; m<=7; m++){
-    digitalWrite(2 + m, HIGH);
-  }
-  pausas(5000);
-  apagar();
-  for (int m=0; m<=7; m++){
-    digitalWrite(2 + m, LOW);
-  }
-  pausas(5000);  
+  asmLedHigh();
+  asmLedPrint(contador); //render de los numeros
+  asmDelay(20);
+  asmLedLow();
+  asmLedAllLow;
+  asmDelay(20);  
+  // if (contador == 9){
+  //   contador = 0;
+  //   for (int i = 0; i < 3; i++){
+  //     asmLedAllHigh();
+  //     asmDelay(20);
+  //     asmLedAllLow();
+  //     asmDelay(20); 
+  //   }
+  // }else{
+  //   contador++;
+  // }
 }
 
 /// FUNCION 
-void prender(){
+void asmLedHigh(){
   /// SBI -> Comando que pone en High el puerto
   /// %0, %1 -> Son dos variables "Formateadas" que referencian a las entradas en la seccion de InputOperands.
   /// "\n\t" indicador de fin de linea (end-of-line), equivalente al (;) de C, pone una nueva linea (\n) y luego que hace un tabulador (\t) ** Importantisimo! 
@@ -95,7 +94,7 @@ void prender(){
   );
 }
 
-void apagar(){
+void asmLedLow(){
   /// CBI -> Comando que pone en LOW el puerto
   /// El resto del codigo se mantiene igual al de PinUp
   asm volatile(
@@ -104,8 +103,7 @@ void apagar(){
   );
 }
 
-
-void pausas(uint8_t ms){
+void asmDelay(uint8_t ms){
   uint16_t cnt;      // variable cnt,tipo de datos de 2 bytes sin signo
   asm volatile(
     "\n"
@@ -122,6 +120,123 @@ void pausas(uint8_t ms){
   );
 }
 
+void asmLed(int pin, int state){
+  switch (pin){
+  case 0: // Pin 2
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD2));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD2));
+    }      
+  break;
+  case 1: // Pin 3
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD3));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD3));
+    }      
+  break;
+  case 2: // Pin 4
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD4));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD4));
+    }      
+  break;
+  case 3: // Pin 5
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD5));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD5));
+    }      
+  break;
+  case 4: // Pin 6
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD6));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD6));
+    }      
+  break;
+  case 5: // Pin 7
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD7));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTD)), "I" (PORTD7));
+    }      
+  break;
+  case 6: // Pin 8
+    if (state == 0){
+      asm volatile("CBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB0));
+    }else{
+      asm volatile("SBI %0, %1 \n\t" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB0));
+    }      
+  break;
+  }
+}
+
+void asmLedAllLow(){
+  for (int i=0; i<=6; i++) {
+    asmLed(i,0);
+  }
+}
+
+void asmLedAllHigh(){
+  for (int i=0; i<=6; i++) {
+    asmLed(i,1);
+  }
+}
+
+void asmLedPrint(int count){
+  switch (count){
+    case 0: // Dibuja 0
+      asmLedAllHigh();
+      asmLed(6,LOW);
+    break;
+    case 1: // Dibuja 1
+      asmLedAllLow();
+      asmLed(1,HIGH);
+      asmLed(2,HIGH);
+    break;
+    case 2: // Dibuja 2
+      asmLedAllHigh();
+      asmLed(2,LOW);
+      asmLed(5,LOW);
+    break;
+    case 3: // Dibuja 3
+      asmLedAllHigh();
+      asmLed(4,LOW);
+      asmLed(5,LOW);
+    break;
+    case 4: // Dibuja 4
+      asmLedAllHigh();
+      asmLed(0,LOW);
+      asmLed(3,LOW);
+      asmLed(4,LOW);
+    break;
+    case 5: // Dibuja 5
+      asmLedAllHigh();
+      asmLed(1,LOW);
+      asmLed(4,LOW);
+    break;
+    case 6: // Dibuja 6
+      asmLedAllHigh();
+      asmLed(1,LOW);
+    break;
+    case 7:
+      asmLedAllLow();
+      asmLed(0,HIGH);
+      asmLed(1,HIGH);
+      asmLed(2,HIGH);
+    break;
+    case 8:
+      asmLedAllHigh();
+    break;
+    case 9:
+      asmLedAllHigh();
+      asmLed(4,LOW);
+    break;
+  }
+}
 
 // Ejemplos	
 // byte x = 33; // crea e inicializa x con el valor 33 (00100001 en binario)
