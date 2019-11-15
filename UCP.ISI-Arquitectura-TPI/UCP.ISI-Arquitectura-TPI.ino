@@ -84,10 +84,10 @@ void loop(){
 /// FUNCION 
 void prender(){
   /// SBI -> Comando que pone en High el puerto
-  /// %0, %1 -> Son dos variables "Formateadas" que referencian a las entradas en la seccion de InputOperands
-  /// "\n\t" indica al compilador que ponga una nueva linea (\n) y luego que haga un tabulador (\t) ** Importantisimo! 
-  /// :: identificador de fin de linea (end-of-line), equivalente al (;) de C
-  /// 
+  /// %0, %1 -> Son dos variables "Formateadas" que referencian a las entradas en la seccion de InputOperands.
+  /// "\n\t" indicador de fin de linea (end-of-line), equivalente al (;) de C, pone una nueva linea (\n) y luego que hace un tabulador (\t) ** Importantisimo! 
+  /// :: Estos indicadores dividen las secciones de la sentencia asm.
+  /// "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB5) son 2 variables de entrada declaradas en el InputOperands que tomarian el lugar de %0, %1 respectivamente.
 
   asm volatile(
   "SBI %0, %1 \n\t"   //digitalWrite(13, HIGH);
@@ -96,6 +96,8 @@ void prender(){
 }
 
 void apagar(){
+  /// CBI -> Comando que pone en LOW el puerto
+  /// El resto del codigo se mantiene igual al de PinUp
   asm volatile(
   "CBI %0, %1 \n\t"   //digitalWrite(13, LOW);
   :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PORTB5)
@@ -119,3 +121,8 @@ void pausas(uint8_t ms){
     : "r" (ms), "r" (delay_count)
   );
 }
+
+
+// Ejemplos	
+// byte x = 33; // crea e inicializa x con el valor 33 (00100001 en binario)
+// byte a = bitRead(x, 5);	// crea e inicializa a con el valor 1, ya que bitRead retorna el valor del 5o bit de la variable x
