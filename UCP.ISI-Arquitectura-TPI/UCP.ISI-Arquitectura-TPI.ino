@@ -35,14 +35,15 @@
 ///
 /// ******************************************************************************************************** ///
 #define FRECUENCIA_RELOJ_CPU 16000000
-#include "GFButton.h"
 
 /// Fase de inicializacion. 
-int estado = HIGH;
-int contador = 5;
-bool modo = false;
-GFButton buttonOn(13);
-// lo de arriba borrar
+int contador = 0;
+int modo = 0;
+int ValorA = 0;
+int ValorB = 0;
+int resultado = 0;
+int operacion = 0;
+int estadoBoton = 0;
 uint16_t delay_count;      // la definicion del tipo de dato uint8_t es similar a usar  unsigned char
 void asm_delay(uint8_t ms);   // prototipo de la función
 
@@ -55,20 +56,19 @@ void setup(){
 
 /// Bucle de ejecucion principal que solo hace titilar al ledRed02PIN = 8.
 void loop(){
-  if (buttonOn.wasPressed()) {
-    changeMode();
+  estadoBoton = digitalRead(13);
+  if (estadoBoton == HIGH){ 
+    modo = 1;
   }
-
-  if (!modo){
-    modoA();
+  if(modo == 1){
+      modoB();
   }else{
-    asmLed(12,0);
-    modoB();
+      modoA();
   }
 }
 
-void modoA(){
-  asmLedPrint(contador); //render de los numeros
+void modoA(){   // MODO 7 Segmentos
+  asmLedPrint(contador);
   asmBinCount(contador); 
   asmDelay(50);
   asmLedAllLow;
@@ -86,27 +86,89 @@ void modoA(){
   }
 }
 
-void modoB(){
-  asmLedPrint(contador); //render de los numeros
-  asmBinCount(contador); 
-  asmDelay(50);
-  asmLedAllLow;
-  asmDelay(50);
-  if (contador == 9){
-    contador = 0;
-    for (int i = 0; i < 3; i++){
-      asmLedAllHigh();
-      asmDelay(20);
-      asmLedAllLow();
-      asmDelay(20); 
+void modoB(){   // MODO COMPUERTAS
+  asmBinCount(0);
+  asmLedPrint(1); 
+  Serial.println("Compuertas: ");
+  Serial.println("Ingrese valor de A (0/1): ");
+  Serial.flush();
+  while(!Serial.available());
+  if (Serial.available() > 0) {
+    ValorA = Serial.readString().toInt();
+  }
+  Serial.println("Ingrese valor de B (0/1): ");
+  Serial.flush();
+  while(!Serial.available());
+  if (Serial.available() > 0) {
+    ValorB = Serial.readString().toInt();
+  }
+  Serial.println("Operaciones a realizar: 1 - AND 2 - OR 3 - XOR");
+  Serial.println("--> Para Reiniciar presione 4");
+  Serial.println("Numero de la operacion a realizar: ");
+  Serial.flush();
+  while(!Serial.available());
+  if (Serial.available() > 0){
+    operacion = Serial.readString().toInt();
+  }
+  if(operacion > 0 and operacion <5){
+    if (operacion == 4){
+      modo = 0;
+    }else{
+      compuertas();
     }
-  }else{
-    contador++;
   }
 }
 
-void changeMode(){
-  modo = true;
+void compuertas(){
+  if(ValorA < 0 or ValorA > 1){
+    ValorA = 0;
+  }
+  if(ValorB < 0 or ValorB > 1){
+    ValorB = 0;
+  }
+  asmLed(7, ValorA);
+  asmLed(8, ValorB);
+  if(operacion == 1){
+    if(ValorA == 1 and ValorB == 1){
+      asmLed(12, 1);
+      resultado = 1;
+    }
+    else{
+      asmLed(12, 0);
+      resultado = 0;
+    }
+  }
+  if(operacion == 2){
+    if(ValorA == 0 and ValorB == 0){
+      asmLed(12, 0);
+      resultado = 0;
+    }
+    else{
+      asmLed(12, 1);
+      resultado = 1;
+    }
+  }
+  if(operacion == 3){
+    if(ValorA == ValorB){
+      asmLed(12, 0);
+      resultado = 0;
+    }
+    else{
+      asmLed(12, 1);
+      resultado = 1;
+    }
+  }
+  resPantalla();
+  modo = 0;
+}
+
+void resPantalla(){
+	Serial.println("--------------------------------------"); //DEBUG salida por pantalla de los datos de sensor
+	Serial.print("Primer valor: "); Serial.println(ValorA); //DEBUG salida por pantalla de los datos de sensor
+	Serial.print("Segundo valor: "); Serial.println(ValorB); //DEBUG salida por pantalla de los datos de sensor
+	Serial.print("Operacion: "); Serial.println(operacion); //DEBUG salida por pantalla de los datos de sensor
+  Serial.println("--------------------------------------"); //DEBUG salida por pantalla de los datos de sensor
+	Serial.print("Resultado: "); Serial.println(resultado); //DEBUG salida por pantalla de los datos de sensor
 }
 
 /// ************************************************************************************************************************************************************************* ///
