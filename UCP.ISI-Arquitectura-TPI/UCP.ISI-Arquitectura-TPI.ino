@@ -128,37 +128,38 @@ void compuertas(){
   }
   asmLed(7, ValorA);
   asmLed(8, ValorB);
-  if(operacion == 1){
+  if(operacion == 1){  // AND
     if(ValorA == 1 and ValorB == 1){
-      asmLed(12, 1);
+      asmLed(10, 1);
       resultado = 1;
     }
     else{
-      asmLed(12, 0);
+      asmLed(10, 0);
       resultado = 0;
     }
   }
-  if(operacion == 2){
+  if(operacion == 2){ // OR
     if(ValorA == 0 and ValorB == 0){
-      asmLed(12, 0);
+      asmLed(10, 0);
       resultado = 0;
     }
     else{
-      asmLed(12, 1);
+      asmLed(10, 1);
       resultado = 1;
     }
   }
-  if(operacion == 3){
+  if(operacion == 3){  // XOR
     if(ValorA == ValorB){
-      asmLed(12, 0);
+      asmLed(10, 0);
       resultado = 0;
     }
     else{
-      asmLed(12, 1);
+      asmLed(10, 1);
       resultado = 1;
     }
   }
   resPantalla();
+  asmDelay(20);
   modo = 0;
 }
 
