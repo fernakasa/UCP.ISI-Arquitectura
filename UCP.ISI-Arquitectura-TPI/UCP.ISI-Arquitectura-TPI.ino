@@ -11,7 +11,7 @@
 /// VERSION: 1.0
 /// ACTUALIZACION: 15-11-2019
 ///
-/// PROYECTO: INTERRUPCIONES + 7 SEGMENTOS + ASSEMBLY - PROTOTIPO REALIZADO CON ARDUINO.
+/// PROYECTO: 7 SEGMENTOS + ASSEMBLY - PROTOTIPO REALIZADO CON ARDUINO.
 ///
 /// https://www.arduino.cc/en/uploads/Main/Arduino_Uno_Rev3-schematic.pdf
 /// http://numeroscelestes.blogspot.com/2017/03/instrucciones-de-ensamblador-dentro-de.html
@@ -159,7 +159,7 @@ void compuertas(){
     }
   }
   resPantalla();
-  asmDelay(20);
+  delay(3000);
   modo = 0;
 }
 
